@@ -1,4 +1,4 @@
 
 # Create a new hand
-GET http://localhost:3001/api/createHand
+POST http://localhost:3001/api/createHand
 Accept: application/json

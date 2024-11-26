@@ -1,12 +1,12 @@
 import fastify from "fastify";
+import handRoutes from "./routes/hands";
+
 const server = fastify({ logger: true });
 const PORT = 3001;
 
-server.get("/api/createHand", (req, reply) => {
-    reply.send({ test: "ah" });
-});
+server.register(handRoutes, { prefix: "/api" });
 
-server.listen({ port: PORT }, (err, address) => {
+server.listen({ port: PORT, host: "0.0.0.0" }, (err, address) => {
     if (err) {
         server.log.error(err);
         process.exit(1);

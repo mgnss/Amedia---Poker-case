@@ -1,0 +1,30 @@
+services:
+    api:
+        build: ./api
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./api:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on:
+            - db
+        environment:
+            - NODE_ENV=production
+            - MONGO_URL=mongodb://db:27017/mydb
+    db:
+        image: mongo
+        volumes:
+            - db-data:/data/db
+        ports:
+            - "27017:27017"
+    ui:
+        build: ./ui
+        ports:
+            - 4173:4173
+        volumes:
+            - ./ui:/usr/src/app
+            - /usr/src/app/node_modules
+        environment:
+            - NODE_ENV=production
+volumes:
+    db-data:
