@@ -1,45 +1,62 @@
-import { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { v4 as uuidv4 } from "uuid";
+import { Hand } from "../models/hand";
+import { analyseHand, createRandomHand } from "../lib/utils";
 
-interface IQuerystring {
-    username: string;
-    password: string;
-}
-
-interface IReply {
-    200: { test: string };
-    302: { url: string };
-    "4xx": { error: string };
-}
-
-const handRoutes = async (server: FastifyInstance, options: any) => {
+const handRoutes = async (
+    server: FastifyInstance,
+    options: Record<string, any>
+) => {
     // Create hand
-    server.post<{
-        Querystring: IQuerystring;
-        Reply: IReply;
-    }>("/createHand", (request, reply) => {
-        reply.code(200).send({ test: "ah" });
+    server.get(
+        "/createHand",
+        async (request: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const randomHand = createRandomHand();
+                const category = analyseHand(randomHand);
 
-        // reply.code(404).send({ error: 'Not found' });
-    });
+                const newHand = new Hand({
+                    _id: uuidv4(),
+                    cards: randomHand,
+                    category: category,
+                });
+
+                const savedHand = await newHand.save();
+                reply.code(200).send({ message: "Success", data: savedHand });
+            } catch (error) {
+                console.error("Error:", error);
+                reply.code(500).send({ error: "Internal Server Error" });
+            }
+        }
+    );
 
     // Get hands
-    server.get<{
-        Reply: IReply;
-    }>("/getHands", (request, reply) => {
-        reply.code(200).send({ test: "as" });
-
-        // reply.code(404).send({ error: 'Not found' });
-    });
+    server.get(
+        "/getHands",
+        async (request: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const hands = await Hand.find({});
+                reply.code(200).send({ message: "Success", data: hands });
+            } catch (error) {
+                console.error("Error:", error);
+                reply.code(500).send({ error: "Internal Server Error" });
+            }
+        }
+    );
 
     // Check winner
-    server.get<{
-        Querystring: IQuerystring;
-        Reply: IReply;
-    }>("/checkWinner", (request, reply) => {
-        reply.code(200).send({ test: "ah" });
-
-        // reply.code(404).send({ error: 'Not found' });
-    });
+    // server.get(
+    //     "/checkWinner",
+    //     async (request: FastifyRequest, reply: FastifyReply) => {
+    //         try {
+    //             const hands = await Hand.find({});
+    //             reply.code(200).send({ message: "Success", data: hands });
+    //         } catch (error) {
+    //             console.error("Error:", error);
+    //             reply.code(500).send({ error: "Internal Server Error" });
+    //         }
+    //     }
+    // );
 };
 
 export default handRoutes;
