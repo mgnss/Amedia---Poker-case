@@ -1,6 +1,5 @@
 const cardSuits = ["h", "r", "k", "s"];
 const cardRanks = [
-    "a",
     "2",
     "3",
     "4",
@@ -13,8 +12,10 @@ const cardRanks = [
     "j",
     "d",
     "k",
+    "a",
 ];
 
+//Creates a random hand of 5 cards
 export const createRandomHand = (): string[] => {
     const deck = cardSuits.reduce((acc, suit) => {
         cardRanks.forEach((rank) => {
@@ -33,38 +34,62 @@ export const createRandomHand = (): string[] => {
     return hand;
 };
 
+//Converts the face cards to numbers for "straight" comparison
+const convertFaces = (ranks: string[]): string[] => {
+    return ranks.map((rank) => {
+        switch (rank) {
+            case "t":
+                return "10";
+            case "j":
+                return "11";
+            case "d":
+                return "12";
+            case "k":
+                return "13";
+            case "a":
+                return "14";
+            default:
+                return rank;
+        }
+    });
+};
+
+//Analyse the hand and return the category
 export const analyseHand = (hand: string[]): string => {
     const suits: string[] = [];
-    const ranks: string[] = [];
+    let ranks: string[] = [];
 
+    //Split cards into ranks and suits
     hand.forEach((card) => {
         ranks.push(card[0]);
         suits.push(card[1]);
     });
 
-    ranks.sort((a, b) => cardRanks.indexOf(a) - cardRanks.indexOf(b));
+    ranks = convertFaces(ranks);
+    ranks.sort((a, b) => parseInt(a) - parseInt(b));
 
-    const isFourOfAKind = ranks.some(
-        (rank) => ranks.filter((r) => r === rank).length === 4
+    const rankCounts = [...new Set(ranks)].map(
+        (currentRank) => ranks.filter((rank) => rank === currentRank).length
     );
-    const isFullHouse = ranks.some(
-        (rank) => ranks.filter((r) => r === rank).length === 3
-    );
+
+    const isFourOfAKind = rankCounts.includes(4);
+
+    const isFullHouse = rankCounts.includes(3) && rankCounts.includes(2);
+
     const isFlush = suits.every((suit) => suit === suits[0]);
-    const isStraight = ranks.every(
-        (rank, i) =>
-            ranks[i + 1] &&
-            ranks[i + 1].charCodeAt(0) - rank.charCodeAt(0) === 1
-    );
-    const isThreeOfAKind = ranks.some(
-        (rank) => ranks.filter((r) => r === rank).length === 3
-    );
-    const isTwoPair =
-        ranks.filter((rank) => ranks.filter((r) => r === rank).length === 2)
-            .length === 4;
-    const isOnePair =
-        ranks.filter((rank) => ranks.filter((r) => r === rank).length === 2)
-            .length === 2;
+
+    const isStraight = ranks.every((currentRank, i) => {
+        return (
+            i === ranks.length - 1 ||
+            parseInt(ranks[i + 1]) - parseInt(currentRank) === 1
+        );
+    });
+
+    const isThreeOfAKind = rankCounts.includes(3);
+
+    const isTwoPair = rankCounts.filter((count) => count === 2).length === 2;
+
+    const isOnePair = rankCounts.filter((count) => count === 2).length === 1;
 
     if (isFlush && isStraight) {
         return "Straight flush";

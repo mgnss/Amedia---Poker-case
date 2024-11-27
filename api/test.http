@@ -1,4 +1,11 @@
-
 # Create a new hand
-POST http://localhost:3001/api/createHand
+GET http://localhost:3000/api/createHand
+Accept: application/json
+
+# Get all saved hands
+GET http://localhost:3000/api/getHands
+Accept: application/json
+
+# Check winner from multiple hands
+GET http://localhost:3000/api/checkWinner?id=1&id=2
 Accept: application/json
