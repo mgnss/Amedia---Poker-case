@@ -1,3 +1,5 @@
+import { HandT } from "./types";
+
 const cardSuits = ["h", "r", "k", "s"];
 const cardRanks = [
     "2",
@@ -117,4 +119,40 @@ export const analyseHand = (hand: string[]): string => {
     }
 
     return "High Card";
+};
+
+export const findWinnerByHands = (hands: HandT[]): HandT[] => {
+    const categories = [
+        "High Card",
+        "One pair",
+        "Two pair",
+        "Three of a kind",
+        "Straight",
+        "Flush",
+        "Full house",
+        "Four of a kind",
+        "Straight flush",
+    ];
+
+    const ratedHands = hands.map((hand, i) => {
+        return {
+            index: i,
+            categoryRank: categories.indexOf(hand.category),
+        };
+    });
+
+    //From lowest to highest category rank
+    ratedHands.sort((a, b) => a.categoryRank - b.categoryRank);
+
+    //Return the hand with the highest category or if its a tie, return all the tied hands
+    return hands
+        .map((_, i) => {
+            if (
+                ratedHands[ratedHands.length - 1].categoryRank ===
+                ratedHands[i].categoryRank
+            ) {
+                return hands[ratedHands[i].index];
+            }
+        })
+        .filter((hand) => hand !== undefined);
 };
