@@ -16,7 +16,7 @@ export const createHand = async (
 
         const newHand = new Hand({
             _id: uuidv4(),
-            cards: [randomHand],
+            cards: randomHand,
             category: category,
         });
 
