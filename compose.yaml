@@ -3,9 +3,6 @@ services:
         build: ./api
         ports:
             - "3000:3000"
-        volumes:
-            - ./api:/usr/src/app
-            - /usr/src/app/node_modules
         depends_on:
             - db
         environment:
@@ -21,9 +18,6 @@ services:
         build: ./ui
         ports:
             - 4173:4173
-        volumes:
-            - ./ui:/usr/src/app
-            - /usr/src/app/node_modules
         environment:
             - NODE_ENV=production
 volumes:
